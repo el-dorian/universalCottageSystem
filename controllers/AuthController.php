@@ -3,6 +3,8 @@
 namespace app\controllers;
 
 use app\models\auth\AuthForm;
+use app\models\handlers\TelegramHandler;
+use app\models\management\BasePreferences;
 use JetBrains\PhpStorm\ArrayShape;
 use Yii;
 use yii\filters\AccessControl;
@@ -57,6 +59,15 @@ class AuthController extends Controller
         $auth = new AuthForm(['scenario' => AuthForm::SCENARIO_LOGIN]);
         if (Yii::$app->request->isPost && $auth->load(Yii::$app->request->post()) && $auth->validate() && $auth->login()) {
             if (!empty(Yii::$app->request->post()['AuthForm']['name'])) {
+                // проверю, нужно ли отправить резервную копию базы данных
+                if(BasePreferences::getInstance()->useTelegramBot){
+                    if(BasePreferences::getInstance()->sendDebugToTelegram){
+                        TelegramHandler::sendDebug("Вошёл пользователь " . Yii::$app->request->post()['AuthForm']['name']);
+                    }
+                    if(BasePreferences::getInstance()->sendDbBackupToTelegram){
+                        TelegramHandler::sendDatabaseReserveCopy();
+                    }
+                }
                 /*Telegram::sendDebug("logged in " . Yii::$app->request->post()['AuthForm']['name']);
                 // make backup
                 Utils::sendDbBackup();*/

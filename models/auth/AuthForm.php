@@ -19,9 +19,9 @@ class AuthForm extends Model{
     public ?string $name = null;
     public ?string $password = null;
 
-    public $pass;
+    public ?string $pass = null;
 
-    private $_user = false;
+    private ?User $_user = null;
 
     #[ArrayShape([self::SCENARIO_LOGIN => "string[]", self::SCENARIO_SIGNUP => "string[]", self::SCENARIO_LOGOUT => "array"])] public function scenarios(): array
     {
@@ -32,7 +32,8 @@ class AuthForm extends Model{
         ];
     }
 
-    #[ArrayShape(['name' => "string", 'password' => "string"])] public function attributeLabels(){
+    #[ArrayShape(['name' => "string", 'password' => "string"])] public function attributeLabels(): array
+    {
         return [
             'name' => 'Логин',
             'password' => 'Пароль'
@@ -55,13 +56,14 @@ class AuthForm extends Model{
             ['password', 'string', 'min' => 1,],
         ];
     }
-    public function validateUniqueName($attribute){
+    public function validateUniqueName($attribute): void
+    {
         if (User::findByUsername($this->name)){
             $this->addError($attribute, 'Пользователь с таким именем уже существует.');
             Yii::$app->session->setFlash('error', 'Пользователь с таким именем уже существует.');
         }
     }
-    public function validatePassword($attribute)
+    public function validatePassword($attribute): void
     {
         if (!$this->hasErrors()){
             $user = $this->getUser();
@@ -91,12 +93,12 @@ class AuthForm extends Model{
             $password = Yii::$app->getSecurity()->generateRandomString(10);
             $hash = Yii::$app->getSecurity()->generatePasswordHash($password);
             $auth_key = Yii::$app->getSecurity()->generateRandomString(32);
-            $newuser = new User;
-            $newuser->username = $this->name;
-            $newuser->auth_key = $auth_key;
-            $newuser->password_hash = $hash;
-            $newuser->status = 1;
-            if($newuser->save()){
+            $newUser = new User;
+            $newUser->username = $this->name;
+            $newUser->auth_key = $auth_key;
+            $newUser->password_hash = $hash;
+            $newUser->status = 1;
+            if($newUser->save()){
                 $this->pass = $password;
                 // получаем id нового пользователя
                 $id = User::findByUsername($this->name)->id;
@@ -114,7 +116,7 @@ class AuthForm extends Model{
      */
     public function getUser(): ?User
     {
-        if ($this->_user === false) {
+        if ($this->_user === null) {
             $this->_user = User::findByUsername($this->name);
         }
         return $this->_user;

@@ -18,7 +18,7 @@ use yii\console\ExitCode;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class HelloController extends Controller
+class ConsoleController extends Controller
 {
     /**
      * This command echoes what you have entered as the message.
@@ -29,6 +29,10 @@ class HelloController extends Controller
     {
         echo $message . "\n";
 
+        return ExitCode::OK;
+    }
+
+    public function sendTelegamDebug($message = "test"){
         return ExitCode::OK;
     }
 }

@@ -43,7 +43,7 @@ class SiteController extends Controller
     /**
      * {@inheritdoc}
      */
-    #[ArrayShape(['error' => "string[]"])] public function actions()
+    #[ArrayShape(['error' => "string[]"])] public function actions(): array
     {
         return [
             'error' => [

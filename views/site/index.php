@@ -1,8 +1,9 @@
 <?php
 
 
+/* @var $this View */
 
-/* @var $this \yii\web\View */
+use yii\web\View;
 
 ?>
 
