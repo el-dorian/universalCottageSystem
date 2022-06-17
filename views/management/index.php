@@ -6,6 +6,8 @@ use app\models\bank\BankPreferencesEditor;
 use app\models\db\DbPreferencesEditor;
 use app\models\db\DbRestoreModel;
 use app\models\email\MailPreferencesEditor;
+use app\models\fines\FinesPreferencesEditor;
+use app\models\management\BasePreferences;
 use app\models\management\BasePreferencesEditor;
 use nirvana\showloading\ShowLoadingAsset;
 use yii\helpers\Html;
@@ -17,6 +19,7 @@ use yii\widgets\ActiveForm;
 /* @var $mailPreferencesEditor MailPreferencesEditor */
 /* @var $bankPreferencesEditor BankPreferencesEditor */
 /* @var $dbPreferencesEditor DbPreferencesEditor */
+/* @var $finesPreferencesEditor FinesPreferencesEditor */
 /* @var $dbRestoreModel DbRestoreModel */
 
 ManagementAsset::register($this);
@@ -29,6 +32,11 @@ $this->title = 'Настройки приложения';
     <li class="nav-item"><a class="nav-link active" href="#mail_prefs" data-toggle="tab">Почта</a></li>
     <li class="nav-item"><a class="nav-link" href="#db_prefs" data-toggle="tab">База данных</a></li>
     <li class="nav-item"><a class="nav-link" href="#bank_prefs" data-toggle="tab">Банк</a></li>
+    <?php
+    if(BasePreferences::getInstance()->payFines){
+        echo '<li class="nav-item"><a class="nav-link" href="#fines_prefs" data-toggle="tab">Пени</a></li>';
+    }
+    ?>
     <li class="nav-item"><a href="#base_prefs" data-toggle="tab" class="nav-link">Обшие настройки</a></li>
 </ul>
 
@@ -161,6 +169,47 @@ $this->title = 'Настройки приложения';
         ?>
     </div>
 
+    <div class="tab-pane fade" id="fines_prefs" role="tabpanel" aria-labelledby="pills-profile-tab">
+        <?php
+        $form = ActiveForm::begin([
+            'id' => 'fines-preferences-form',
+            'validateOnSubmit' => false,
+            'options' => ['class' => 'form-horizontal'],
+        ]);
+        echo $form->field($finesPreferencesEditor, 'payElectricityFines', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->checkbox();
+        echo $form->field($finesPreferencesEditor, 'payMembershipFines', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->checkbox();
+        echo $form->field($finesPreferencesEditor, 'payTargetFines', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->checkbox();
+        echo $form->field($finesPreferencesEditor, 'electricityFinesRate', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->textInput(['type' => 'number', 'step' => '0.01']);
+        echo $form->field($finesPreferencesEditor, 'membershipFinesRate', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->textInput(['type' => 'number', 'step' => '0.01']);
+        echo $form->field($finesPreferencesEditor, 'targetFinesRate', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->textInput(['type' => 'number', 'step' => '0.01']);
+        echo $form->field($finesPreferencesEditor, 'electricityPeriodForPayment', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->textInput(['type' => 'number', 'step' => '1']);
+        echo $form->field($finesPreferencesEditor, 'membershipPeriodForPayment', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->textInput(['type' => 'number', 'step' => '1']);
+        echo $form->field($finesPreferencesEditor, 'targetPeriodForPayment', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->textInput(['type' => 'number', 'step' => '1']);
+
+        echo Html::submitButton("Сохранить", ['class' => 'btn btn-primary with-margin']);
+
+        ActiveForm::end();
+        ?>
+    </div>
+
     <div class="tab-pane fade" id="base_prefs" role="tabpanel" aria-labelledby="pills-contact-tab">
         <?php
         $form = ActiveForm::begin([
@@ -168,9 +217,35 @@ $this->title = 'Настройки приложения';
             'validateOnSubmit' => false,
             'options' => ['class' => 'form-horizontal'],
         ]);
+
+        echo '<div class="with-margin"><h5>Общие настройки</h5></div>';
+
         echo $form->field($basePreferencesEditor, 'sntName', ['template' =>
             '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
             ->textInput();
+
+        echo '<div class="with-margin"><h5>Настройки платежей</h5></div>';
+
+        echo $form->field($basePreferencesEditor, 'payTarget', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->checkbox();
+
+        echo $form->field($basePreferencesEditor, 'payFines', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->checkbox();
+
+        echo $form->field($basePreferencesEditor, 'targetPaymentType', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->dropDownList(['0' => 'Раз в квартал', '1' => 'Раз в год']);
+
+
+        echo $form->field($basePreferencesEditor, 'membershipPaymentType', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->dropDownList(['0' => 'Раз в квартал', '1' => 'Раз в год']);
+
+
+        echo '<div class="with-margin"><h5>Телеграм-бот</h5></div>';
+
         echo $form->field($basePreferencesEditor, 'useTelegramBot', ['template' =>
             '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
             ->checkbox();

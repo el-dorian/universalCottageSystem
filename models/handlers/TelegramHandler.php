@@ -6,6 +6,7 @@ namespace app\models\handlers;
 use app\models\databases\DbTelegramBinding;
 use app\models\db\DbBackupModel;
 use app\models\db\DbSettings;
+use app\models\email\MailPreferences;
 use app\models\management\BasePreferences;
 use CURLFile;
 use DateTime;
@@ -20,6 +21,9 @@ use Yii;
 
 class TelegramHandler
 {
+    /**
+     * @throws Exception
+     */
     private static function getTgToken(): string
     {
         return BasePreferences::getInstance()->telegramApiKey;
@@ -95,6 +99,9 @@ class TelegramHandler
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private static function handleSimpleText(string $msg_text, Message $message): string
     {
         if (str_starts_with($msg_text, "sql")) {
@@ -131,6 +138,8 @@ class TelegramHandler
                 }
             }
         } catch (Exception $e) {
+            // отправлю ошибку письмом
+            (new EmailHandler())->sendEmail(MailPreferences::getInstance()->testEmailAddress, 'Разработчику', 'Ошибка Telegram ' . $e->getMessage(), $e->getTraceAsString());
         }
     }
 
@@ -157,7 +166,10 @@ class TelegramHandler
         }
     }
 
-    public static function sendDatabaseReserveCopy()
+    /**
+     * @throws Exception
+     */
+    public static function sendDatabaseReserveCopy(): void
     {
         // make backup
         (new DbBackupModel())->backup();

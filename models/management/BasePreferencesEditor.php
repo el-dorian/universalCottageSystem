@@ -4,6 +4,7 @@
 namespace app\models\management;
 
 
+use Exception;
 use JetBrains\PhpStorm\ArrayShape;
 use yii\base\Model;
 
@@ -21,6 +22,10 @@ class BasePreferencesEditor extends Model
                 'telegramSecret',
                 'sendDebugToTelegram',
                 'sendDbBackupToTelegram',
+                'payTarget',
+                'targetPaymentType',
+                'membershipPaymentType',
+                'payFines',
             ],
         ];
     }
@@ -31,9 +36,13 @@ class BasePreferencesEditor extends Model
     public string $telegramSecret;
     public bool $sendDebugToTelegram;
     public bool $sendDbBackupToTelegram;
+    public bool $payTarget;
+    public string $targetPaymentType;
+    public string $membershipPaymentType;
+    public bool $payFines;
 
 
- #[ArrayShape(['sntName' => "string", 'useTelegramBot' => "string", 'telegramApiKey' => "string", 'telegramSecret' => "string", 'sendDebugToTelegram' => "string", 'sendDbBackupToTelegram' => "string"])] public function attributeLabels(): array
+ public function attributeLabels(): array
     {
         return [
             'sntName' => 'Имя СНТ',
@@ -42,9 +51,16 @@ class BasePreferencesEditor extends Model
             'telegramSecret' => 'Секретная фраза для подключения администраторов к Телеграм-боту',
             'sendDebugToTelegram' => 'Отправка данных отладки в телеграм-бот',
             'sendDbBackupToTelegram' => 'Отправка резервной копии базы данных в телеграм при входе пользователя в управление программой',
+            'payTarget' => 'Оплачивать целевые взносы',
+            'targetPaymentType' => 'Принцип оплаты целевых взносов',
+            'membershipPaymentType' => 'Принцип оплаты членских взносов',
+            'payFines' => 'Оплачивать пени',
         ];
     }
 
+    /**
+     * @throws Exception
+     */
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -55,6 +71,10 @@ class BasePreferencesEditor extends Model
         $this->telegramSecret = $currentSettings->telegramSecret;
         $this->sendDebugToTelegram = $currentSettings->sendDebugToTelegram;
         $this->sendDbBackupToTelegram = $currentSettings->sendDbBackupToTelegram;
+        $this->payTarget = $currentSettings->payTarget;
+        $this->targetPaymentType = $currentSettings->targetPaymentType;
+        $this->membershipPaymentType = $currentSettings->membershipPaymentType;
+        $this->payFines = $currentSettings->payFines;
     }
 
     public function rules(): array
@@ -66,10 +86,18 @@ class BasePreferencesEditor extends Model
                 'telegramApiKey',
                 'telegramSecret',
                 'sendDebugToTelegram',
-                'sendDbBackupToTelegram',], 'required']
+                'sendDbBackupToTelegram',
+                'payTarget',
+                'targetPaymentType',
+                'membershipPaymentType',
+                'payFines',
+                ], 'required']
         ];
     }
 
+    /**
+     * @throws Exception
+     */
     public function saveSettings(): bool
     {
         BasePreferences::getInstance()->saveNewSettings(
@@ -79,6 +107,10 @@ class BasePreferencesEditor extends Model
             $this->telegramSecret,
             $this->sendDebugToTelegram,
             $this->sendDbBackupToTelegram,
+            $this->payTarget,
+            $this->targetPaymentType,
+            $this->membershipPaymentType,
+            $this->payFines,
         );
         return true;
     }

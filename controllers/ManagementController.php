@@ -12,6 +12,7 @@ use app\models\bank\BankPreferencesEditor;
 use app\models\db\DbPreferencesEditor;
 use app\models\db\DbRestoreModel;
 use app\models\email\MailPreferencesEditor;
+use app\models\fines\FinesPreferencesEditor;
 use app\models\management\BasePreferencesEditor;
 use JetBrains\PhpStorm\ArrayShape;
 use yii\filters\AccessControl;
@@ -50,12 +51,14 @@ class ManagementController extends Controller
         $mailPreferencesEditor = new MailPreferencesEditor();
         $dbPreferencesEditor = new DbPreferencesEditor();
         $bankPreferencesEditor = new BankPreferencesEditor();
+        $finesPreferencesEditor = new FinesPreferencesEditor();
         $dbRestoreModel = new DbRestoreModel();
         return $this->render('index', [
             'basePreferencesEditor' => $basePreferencesEditor,
             'mailPreferencesEditor' => $mailPreferencesEditor,
             'bankPreferencesEditor' => $bankPreferencesEditor,
             'dbPreferencesEditor' => $dbPreferencesEditor,
+            'finesPreferencesEditor' => $finesPreferencesEditor,
             'dbRestoreModel' => $dbRestoreModel
         ]);
     }

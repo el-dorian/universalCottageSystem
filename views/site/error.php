@@ -1,24 +1,23 @@
 <?php
 
 /* @var $this yii\web\View */
-/* @var $name string */
-/* @var $message string */
 /* @var $exception Exception */
+
 
 use yii\helpers\Html;
 use app\assets\AppAsset;
 
 AppAsset::register($this);
 
-$this->title = $name;
+$this->title = $exception->getMessage();
 ?>
 <div class="site-error">
 
 
-    <h1><?= Html::encode("Ошибка") ?></h1>
+    <h1><?= Html::encode("Ошибка : {$exception->getMessage()}") ?></h1>
 
     <div class="alert alert-danger">
-        <?= nl2br(Html::encode($message)) ?>
+        <?= nl2br(Html::encode($exception->getTraceAsString())) ?>
     </div>
 
     <p>
