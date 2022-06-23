@@ -11,6 +11,7 @@ namespace app\controllers;
 use app\models\bank\BankPreferencesEditor;
 use app\models\db\DbPreferencesEditor;
 use app\models\email\MailPreferencesEditor;
+use app\models\fines\FinesPreferencesEditor;
 use app\models\management\BasePreferencesEditor;
 use app\models\selections\AjaxRequestStatus;
 use JetBrains\PhpStorm\ArrayShape;
@@ -41,6 +42,7 @@ class EditSettingsController extends Controller
                             'db-settings',
                             'bank-settings',
                             'base-settings',
+                            'fines-settings',
                         ],
                         'roles' => ['writer'],
                     ],
@@ -108,6 +110,22 @@ class EditSettingsController extends Controller
         if (Yii::$app->request->isAjax && Yii::$app->request->isPost) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $model = new BasePreferencesEditor(['scenario' => BasePreferencesEditor::SCENARIO_CHANGE]);
+            $model->load(Yii::$app->request->post());
+            if ($model->validate() && $model->saveSettings()) {
+                return AjaxRequestStatus::success();
+            }
+            return AjaxRequestStatus::failed('Проверьте введённые данные');
+        }
+        throw new NotFoundHttpException('Страница не найдена');
+    }
+    /**
+     * @throws NotFoundHttpException
+     */
+    public function actionFinesSettings(): array
+    {
+        if (Yii::$app->request->isAjax && Yii::$app->request->isPost) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $model = new FinesPreferencesEditor(['scenario' => FinesPreferencesEditor::SCENARIO_CHANGE]);
             $model->load(Yii::$app->request->post());
             if ($model->validate() && $model->saveSettings()) {
                 return AjaxRequestStatus::success();

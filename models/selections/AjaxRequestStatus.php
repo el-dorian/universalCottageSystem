@@ -20,4 +20,9 @@ class AjaxRequestStatus
     {
         return ['status' => self::STATUS_FAILED, 'message' => $message];
     }
+
+    #[ArrayShape(['status' => "int", 'title' => "string", 'view' => "string", 'delay' => "false"])] public static function view(string $title, string $view): array
+    {
+        return ['status' => self::STATUS_SUCCESS, 'title' => $title, 'view' => $view, 'delay' => false];
+    }
 }

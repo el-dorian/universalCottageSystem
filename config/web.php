@@ -7,8 +7,7 @@ use yii\log\FileTarget;
 use yii\caching\FileCache;
 use app\models\auth\User;
 use yii\rbac\DbManager;
-use yii\swiftmailer\Mailer;
-use yii\web\ErrorAction;
+use yii\symfonymailer\Mailer;
 use yii\web\UrlNormalizer;
 
 // try connect to DB, if error- open setup
@@ -52,26 +51,16 @@ $config = [
         ],
         'mailer' => [
             'class' => Mailer::class,
-            'useFileTransport' => false,
-            'messageConfig' => [
-                'charset' => 'UTF-8',
-                'from' => [$emailPreferences->senderEmail => $emailPreferences->senderName],
-            ],
             'transport' => [
-                'class' => 'Swift_SmtpTransport',
+                'scheme' => 'smtps',
                 'host' => $emailPreferences->senderServer,
                 'username' => $emailPreferences->senderLogin,
                 'password' => $emailPreferences->senderPass,
-                'port' => '587',
-                'encryption' => 'tls',
-                'streamOptions' => [
-                    'ssl' => [
-                        'verify_peer' => false,
-                        'verify_peer_name' => false,
-                        'allow_self_signed' => true
-                    ],
-                ],
+                'port' => 587,
+                'dsn' => 'native://default',
             ],
+            'useFileTransport' => false,
+
             // send all mails to a file by default. You have to set
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
@@ -97,6 +86,7 @@ $config = [
         ],
     ],
     'params' => $params,
+
 ];
 
 if (YII_ENV_DEV) {

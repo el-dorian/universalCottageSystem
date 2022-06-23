@@ -57,9 +57,7 @@ class TelegramHandler
                     }
                     /** @var Message $message */
                     $bot->sendMessage($message->getChat()->getId(),
-                        $answer,
-                        null,
-                        false,
+                        $answer
                     );
                 } catch (Exception $e) {
                     $bot->sendMessage($message->getChat()->getId(), $e->getMessage());
@@ -68,6 +66,15 @@ class TelegramHandler
 
             $bot->command('test', static function ($message) {
                 self::sendDebug("i here " . $message->getChat()->getId());
+            });
+
+            $bot->command('test-mail', static function ($message) {
+                self::sendDebug("send test mail " . $message->getChat()->getId());
+                (new EmailHandler())->sendEmail('eldorianwin@gmail.com',
+                    'me',
+                    'title',
+                    'i work!'
+                );
             });
 
 

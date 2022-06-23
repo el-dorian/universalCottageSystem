@@ -6,6 +6,9 @@ namespace app\models\management;
 
 class BasePreferences
 {
+    public const STATE_PAY_QUARTERLY = '0';
+    public const STATE_PAY_YEARLY = '1';
+
     public string $sntName;
     public bool $useTelegramBot;
     public string $telegramApiKey;
@@ -17,6 +20,7 @@ class BasePreferences
     public string $targetPaymentType;
     public string $membershipPaymentType;
     public bool $payFines;
+    public int $cottagesQuantity;
 
     private function __construct(
         string $sntName,
@@ -28,10 +32,11 @@ class BasePreferences
         bool $payTarget,
         string $targetPaymentType,
         string $membershipPaymentType,
-        bool $payFines
+        bool $payFines,
+        int $cottagesQuantity
     )
     {
-        $this->refreshData($sntName, $useTelegramBot, $telegramApiKey, $telegramSecret, $sendDebugToTelegram, $sendDbBackupToTelegram, $payTarget, $targetPaymentType, $membershipPaymentType, $payFines);
+        $this->refreshData($sntName, $useTelegramBot, $telegramApiKey, $telegramSecret, $sendDebugToTelegram, $sendDbBackupToTelegram, $payTarget, $targetPaymentType, $membershipPaymentType, $payFines, $cottagesQuantity);
     }
 
     private static ?BasePreferences $instance = null;
@@ -57,6 +62,7 @@ class BasePreferences
                 empty($settingsArray[7]) ? '0' : $settingsArray[7],
                 empty($settingsArray[8]) ? '0' : $settingsArray[8],
                 $settingsArray[9] === '1',
+                empty($settingsArray[10]) ? 0 : (int) $settingsArray[10],
             );
         }
         return self::$instance;
@@ -72,13 +78,14 @@ class BasePreferences
         bool $payTarget,
         string $targetPaymentType,
         string $membershipPaymentType,
-        bool $payFines
+        bool $payFines,
+        int $cottagesQuantity
     ): void
     {
         $settingsFile = $_SERVER['DOCUMENT_ROOT'] . '/../settings/base_preferences.ini';
-        file_put_contents($settingsFile, "$sntName\n$useTelegramBot\n$telegramApiKey\n$telegramSecret\n$sendDebugToTelegram\n$sendDbBackupToTelegram\n$payTarget\n$targetPaymentType\n$membershipPaymentType\n$payFines"
+        file_put_contents($settingsFile, "$sntName\n$useTelegramBot\n$telegramApiKey\n$telegramSecret\n$sendDebugToTelegram\n$sendDbBackupToTelegram\n$payTarget\n$targetPaymentType\n$membershipPaymentType\n$payFines\n$cottagesQuantity"
         );
-        $this->refreshData($sntName, $useTelegramBot, $telegramApiKey, $telegramSecret, $sendDebugToTelegram, $sendDbBackupToTelegram, $payTarget, $targetPaymentType, $membershipPaymentType, $payFines);
+        $this->refreshData($sntName, $useTelegramBot, $telegramApiKey, $telegramSecret, $sendDebugToTelegram, $sendDbBackupToTelegram, $payTarget, $targetPaymentType, $membershipPaymentType, $payFines, $cottagesQuantity);
     }
 
     /**
@@ -92,8 +99,9 @@ class BasePreferences
      * @param string $targetPaymentType
      * @param string $membershipPaymentType
      * @param bool $payFines
+     * @param int $cottagesQuantity
      */
-    public function refreshData(string $sntName, bool $useTelegramBot, string $telegramApiKey, string $telegramSecret, bool $sendDebugToTelegram, bool $sendDbBackupToTelegram, bool $payTarget, string $targetPaymentType, string $membershipPaymentType, bool $payFines): void
+    public function refreshData(string $sntName, bool $useTelegramBot, string $telegramApiKey, string $telegramSecret, bool $sendDebugToTelegram, bool $sendDbBackupToTelegram, bool $payTarget, string $targetPaymentType, string $membershipPaymentType, bool $payFines, int $cottagesQuantity): void
     {
         $this->sntName = $sntName;
         $this->useTelegramBot = $useTelegramBot;
@@ -105,5 +113,6 @@ class BasePreferences
         $this->targetPaymentType = $targetPaymentType;
         $this->membershipPaymentType = $membershipPaymentType;
         $this->payFines = $payFines;
+        $this->cottagesQuantity = $cottagesQuantity;
     }
 }

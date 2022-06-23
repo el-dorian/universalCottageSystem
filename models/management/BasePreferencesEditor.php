@@ -26,6 +26,7 @@ class BasePreferencesEditor extends Model
                 'targetPaymentType',
                 'membershipPaymentType',
                 'payFines',
+                'cottagesQuantity',
             ],
         ];
     }
@@ -40,9 +41,10 @@ class BasePreferencesEditor extends Model
     public string $targetPaymentType;
     public string $membershipPaymentType;
     public bool $payFines;
+    public int $cottagesQuantity;
 
 
- public function attributeLabels(): array
+    public function attributeLabels(): array
     {
         return [
             'sntName' => 'Имя СНТ',
@@ -55,6 +57,7 @@ class BasePreferencesEditor extends Model
             'targetPaymentType' => 'Принцип оплаты целевых взносов',
             'membershipPaymentType' => 'Принцип оплаты членских взносов',
             'payFines' => 'Оплачивать пени',
+            'cottagesQuantity' => 'Количество участков в СНТ',
         ];
     }
 
@@ -75,6 +78,7 @@ class BasePreferencesEditor extends Model
         $this->targetPaymentType = $currentSettings->targetPaymentType;
         $this->membershipPaymentType = $currentSettings->membershipPaymentType;
         $this->payFines = $currentSettings->payFines;
+        $this->cottagesQuantity = $currentSettings->cottagesQuantity;
     }
 
     public function rules(): array
@@ -91,7 +95,7 @@ class BasePreferencesEditor extends Model
                 'targetPaymentType',
                 'membershipPaymentType',
                 'payFines',
-                ], 'required']
+            ], 'required']
         ];
     }
 
@@ -111,6 +115,7 @@ class BasePreferencesEditor extends Model
             $this->targetPaymentType,
             $this->membershipPaymentType,
             $this->payFines,
+            $this->cottagesQuantity,
         );
         return true;
     }

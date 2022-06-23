@@ -16,7 +16,7 @@ class ErrorHandler
     public static function sendError(Exception $e): void
     {
         $root = Yii::$app->basePath;
-        $errorInfo = TimeHandler::timestampToDateTime(time()) . "\r\n";
+        $errorInfo = TimeHandler::timestampToDate(time(), true) . "\r\n";
         $errorInfo .= 'url ' . Url::to() . "\r\n";
         $errorInfo .= 'message ' . $e->getMessage() . "\r\n";
         $errorInfo .= 'code ' . $e->getCode() . "\r\n";

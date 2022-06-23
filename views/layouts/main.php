@@ -18,7 +18,6 @@ AppAsset::register($this);
 <head>
     <meta charset="<?= Yii::$app->charset ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
@@ -54,14 +53,14 @@ AppAsset::register($this);
            // ['label' => 'С', 'url' => ['/count/index'], 'options' => ['class' => 'd-sm-none', 'title' => 'Статистика']],
             ['label' => 'В', 'url' => ['/search/search'], 'options' => ['class' => 'd-sm-none', 'title' => 'Выборки']],
             ['label' => 'З', 'url' => ['/filling'], 'options' => ['class' => 'd-sm-none', 'title' => 'Заполнение']],
-            ['label' => 'Т', 'url' => ['/tariffs/index'], 'options' => ['class' => 'd-sm-none', 'title' => 'Тарифы']],
-            ['label' => 'У', 'url' => ['/management/index'], 'options' => ['class' => 'd-sm-none', 'title' => 'Управление']],
+            ['label' => 'Т', 'url' => ['/tariffs/#electricity_details'], 'options' => ['class' => 'd-sm-none', 'title' => 'Тарифы']],
+            ['label' => 'У', 'url' => ['/management/'], 'options' => ['class' => 'd-sm-none', 'title' => 'Управление']],
            // ['label' => 'Статистика', 'url' => ['/count/index'], 'options' => ['class' => 'visible-xs']],
             ['label' => 'Выборки', 'url' => ['/search/search'], 'options' => ['class' => 'visible-xs']],
             ['label' => 'Заполнение', 'url' => ['/filling/power'], 'options' => ['class' => 'visible-xs']],
-            ['label' => 'Тарифы', 'url' => ['/tariffs/index'], 'options' => ['class' => 'visible-xs']],
+            ['label' => 'Тарифы', 'url' => ['/tariffs/index#electricity_details'], 'options' => ['class' => 'visible-xs']],
            // ['label' => '<span id="messagesScheduleMenuItem"><span class="glyphicon glyphicon-envelope"></span> ' . "<span id='unsendedMessagesBadge' class='badge'> " . MailingSchedule::countWaiting() . '</span></span>', 'url' => ['/site/mailing-schedule'], 'encode' => false, 'target' => '_blank'],
-            ['label' => 'Управление', 'url' => ['/management/index'], 'options' => ['class' => 'visible-xs']],
+            ['label' => 'Управление', 'url' => ['/management/index#mail_prefs'], 'options' => ['class' => 'visible-xs']],
             /*'<li>'
             . Html::beginForm(['/logout'], 'post', ['class' => 'form-inline'])
             . Html::submitButton(

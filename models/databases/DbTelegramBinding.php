@@ -4,14 +4,15 @@ namespace app\models\databases;
 
 use yii\db\ActiveRecord;
 
+/**
+ *
+ * @property int $id [int(10) unsigned]
+ * @property string $person_id [varchar(255)]
+ * @property int $log_level [int(11)]
+ */
+
 class DbTelegramBinding extends ActiveRecord
 {
-    /**
-     *
-     * @property int $id [int(10) unsigned]
-     * @property string $person_id [varchar(255)]
-     * @property int $log_level [int(11)]
-     */
 
     public static function tableName(): string
     {

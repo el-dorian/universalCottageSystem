@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\databases\DbCottage;
 use app\models\handlers\TelegramHandler;
 use app\models\handlers\TimeHandler;
 use JetBrains\PhpStorm\ArrayShape;
@@ -53,24 +54,6 @@ class SiteController extends Controller
         ];
     }
 
-/*public function actionError(): Response|string
-{
-    $e = Yii::$app->errorHandler->exception;
-    if ($e !== null) {
-        $errorInfo = '';
-        $errorInfo .= TimeHandler::timestampToDateTime(time()) . "\r\n";
-        $errorInfo .= 'url ' . Url::to() . "\r\n";
-        $errorInfo .= 'message ' . $e->getMessage() . "\n";
-        $errorInfo .= 'code ' . $e->getCode() . "\n";
-        $errorInfo .= 'in file ' . $e->getFile() . "\n";
-        $errorInfo .= 'in sting ' . $e->getLine() . "\n";
-        $errorInfo .= $e->getTraceAsString() . "\n";
-        TelegramHandler::sendDebug("Ошибка: $errorInfo");
-        return $this->render('error', ['exception' => $e]);
-    }
-    return $this->redirect('/', 301);
-}*/
-
     /**
      * Displays homepage.
      *
@@ -78,7 +61,8 @@ class SiteController extends Controller
      */
     public function actionIndex(): string
     {
-        return $this->render('index');
+        $cottages = DbCottage::find()->all();
+        return $this->render('index', ['cottages' => $cottages]);
     }
 
     public function actionDeny(): Response|string

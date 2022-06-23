@@ -1,3 +1,23 @@
+function dangerReload() {
+    $(window).on('beforeunload.message', function () {
+        return "Необходимо заполнить все поля на странице!";
+    });
+}
+
+function appendModalForm(answer) {
+    if (answer['status'] === 1) {
+        makeModal(answer.title, answer.view, answer.delay);
+    } else if (answer['status'] === 0) {
+        if (answer['message']) {
+            makeInformer("warning", "Неудача", answer['message'])
+        } else {
+            makeInformer("warning", "Неудача", "Произошла ошибка при выполнении операции. Попробуйте ещё раз.")
+        }
+    } else {
+        makeInformer("danger", "Ошибка", "Невозможно выполнить операцию. Ошибка на стороне сервера.")
+    }
+}
+
 function showAlert(alertDiv) {
     // считаю расстояние от верха страницы до места, где располагается информер
     const topShift = alertDiv[0].offsetTop;
@@ -57,6 +77,62 @@ function makeInformer(type, header, body) {
     });
     container.append(informer);
     showAlert(informer)
+}
+
+
+// Функция вызова пустого модального окна
+function makeModal(header, text, delayed) {
+    if (delayed) {
+        // открытие модали поверх другой модали
+        let modal = $("div.modal");
+        modal.off('hidden.bs.modal');
+        if (modal.length === 1) {
+            modal.modal('hide');
+            let newModal = $('<div id="myModal" class="modal fade mode-choose"><div class="modal-dialog  modal-lg"><div class="modal-content"><div class="modal-header">' + header + '</div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-danger"  data-dismiss="modal" type="button" id="cancelActionButton">Отмена</button></div></div></div>');
+            modal.on('hidden.bs.modal', function () {
+                modal.remove();
+                if (!text)
+                    text = '';
+                $('body').append(newModal);
+                dangerReload();
+                newModal.modal({
+                    keyboard: true,
+                    show: true
+                });
+                newModal.on('shown.bs.modal', function () {
+                    $('body').css({'overflow': 'hidden'});
+                    $('div.wrap div.container, div.wrap nav').addClass('blured');
+                });
+                newModal.on('hidden.bs.modal', function () {
+                    normalReload();
+                    newModal.remove();
+                    $('body').css({'overflow': 'auto'});
+                    $('div.wrap div.container, div.wrap nav').removeClass('blured');
+                });
+                $('div.wrap div.container, div.wrap nav').addClass('blured');
+            });
+            return newModal;
+        }
+    }
+    if (!text)
+        text = '';
+    let modal = $('<div id="myModal" class="modal fade mode-choose"><div class="modal-dialog  modal-lg"><div class="modal-content"><div class="modal-header">' + header + '</div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-danger"  data-dismiss="modal" type="button" id="cancelActionButton">Отмена</button></div></div></div>');
+    $('body').append(modal);
+    dangerReload();
+    modal.modal({
+        keyboard: true,
+        show: true
+    });
+    modal.on('hidden.bs.modal', function () {
+        normalReload();
+        modal.remove();
+        $('div.wrap div.container, div.wrap nav').removeClass('blured');
+    });
+    $('div.wrap div.container, div.wrap nav').addClass('blured');
+    modal.find('form').on('submit', function () {
+        normalReload();
+    })
+    return modal;
 }
 
 function showWaiter() {
@@ -122,7 +198,6 @@ function sendAjax(method, url, callback, attributes, isForm) {
         }).fail(function (e) {// noinspection JSUnresolvedVariable
             ajaxNormalReload();
             deleteWaiter();
-            checkMessages();
             if (e.responseJSON) {// noinspection JSUnresolvedVariable
                 makeInformer('danger', 'Системная ошибка', e.responseJSON['message']);
             } else {
@@ -165,4 +240,39 @@ function simpleActionHandler(answer) {
     } else {
         makeInformer("danger", "Ошибка", "Невозможно выполнить операцию. Ошибка на стороне сервера.")
     }
+}
+
+function handleAjaxFormTriggres() {
+    let triggers = $('.ajax-form-trigger');
+    triggers.on('click.request-form', function (event) {
+        event.preventDefault();
+        event.stopPropagation()
+        sendAjax(
+            'get',
+            $(this).attr('data-action'),
+            appendModalForm
+        )
+    });
+}
+
+// навигация по табам
+function enableTabNavigation() {
+    let url = location.href.replace(/\/$/, "");
+    if (location.hash) {
+        const hash = url.split("#");
+        $('a[href="#' + hash[1] + '"]').tab("show");
+        url = location.href.replace(/\/#/, "#");
+        history.replaceState(null, null, url);
+    }
+
+    $('a[data-toggle="tab"]').on("click", function () {
+        let newUrl;
+        const hash = $(this).attr("href");
+        if (hash === "#home") {
+            newUrl = url.split("#")[0];
+        } else {
+            newUrl = url.split("#")[0] + hash;
+        }
+        history.replaceState(null, null, newUrl);
+    });
 }

@@ -10,6 +10,7 @@ use app\models\fines\FinesPreferencesEditor;
 use app\models\management\BasePreferences;
 use app\models\management\BasePreferencesEditor;
 use nirvana\showloading\ShowLoadingAsset;
+use unclead\multipleinput\MultipleInput;
 use yii\helpers\Html;
 use yii\web\View;
 use yii\widgets\ActiveForm;
@@ -48,7 +49,8 @@ $this->title = 'Настройки приложения';
         $form = ActiveForm::begin([
             'id' => 'mail-preferences-form',
             'validateOnSubmit' => false,
-            'options' => ['class' => 'form-horizontal'],
+            'action' => '/edit-settings/mail-settings',
+            'options' => ['class' => 'form-horizontal preferences-form'],
         ]);
 
         echo $form->field($mailPreferencesEditor, 'senderServer', ['template' =>
@@ -109,7 +111,8 @@ $this->title = 'Настройки приложения';
         $form = ActiveForm::begin([
         'id' => 'db-preferences-form',
         'validateOnSubmit' => false,
-        'options' => ['class' => 'form-horizontal'],
+        'action' => '/edit-settings/db-settings',
+        'options' => ['class' => 'form-horizontal preferences-form'],
         ]);
         echo $form->field($dbPreferencesEditor, 'dsn', ['template' =>
         '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
@@ -139,7 +142,8 @@ $this->title = 'Настройки приложения';
         $form = ActiveForm::begin([
             'id' => 'bank-preferences-form',
             'validateOnSubmit' => false,
-            'options' => ['class' => 'form-horizontal'],
+            'action' => '/edit-settings/bank-settings',
+            'options' => ['class' => 'form-horizontal preferences-form'],
         ]);
         echo $form->field($bankPreferencesEditor, 'name', ['template' =>
             '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
@@ -174,7 +178,8 @@ $this->title = 'Настройки приложения';
         $form = ActiveForm::begin([
             'id' => 'fines-preferences-form',
             'validateOnSubmit' => false,
-            'options' => ['class' => 'form-horizontal'],
+            'action' => '/edit-settings/fines-settings',
+            'options' => ['class' => 'form-horizontal preferences-form'],
         ]);
         echo $form->field($finesPreferencesEditor, 'payElectricityFines', ['template' =>
             '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
@@ -215,10 +220,15 @@ $this->title = 'Настройки приложения';
         $form = ActiveForm::begin([
             'id' => 'base-preferences-form',
             'validateOnSubmit' => false,
-            'options' => ['class' => 'form-horizontal'],
+            'action' => '/edit-settings/base-settings',
+            'options' => ['class' => 'form-horizontal preferences-form'],
         ]);
 
         echo '<div class="with-margin"><h5>Общие настройки</h5></div>';
+
+        echo $form->field($basePreferencesEditor, 'cottagesQuantity', ['template' =>
+            '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
+            ->textInput(['min' => 0, 'step' => 1, 'type' => 'number']);
 
         echo $form->field($basePreferencesEditor, 'sntName', ['template' =>
             '<div class="col-sm-4 with-margin">{label}</div><div class="col-sm-8">{input}{error}{hint}</div>'])
