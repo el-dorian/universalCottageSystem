@@ -1,7 +1,7 @@
 $(function () {
     "use strict";
     enableTabNavigation();
-    handleAjaxFormTriggres();
+    handleAjaxFormTriggers();
 
     // сохранение настроек почты
     let settingsForms = $('form.preferences-form');

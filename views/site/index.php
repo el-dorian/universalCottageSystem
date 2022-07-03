@@ -18,8 +18,7 @@ ShowLoadingAsset::register($this)
 
 <div class="col-lg-12">
 
-    <div class="text-center with-margin"><button id="addCottageBtn" class="btn btn-success">Добавить участок</button></div>
-
+    <div class="text-center with-margin"><button id="addCottageBtn" class="btn btn-success ajax-form-trigger" data-action="/form/add-cottage">Добавить участок</button></div>
     <?php try {
         echo CottagesShowWidget::widget(['cottages' => $cottages]);
     } catch (Exception $e) {

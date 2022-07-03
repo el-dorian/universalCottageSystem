@@ -16,7 +16,6 @@ echo '<div class="col-sm-12">';
 try {
     $form = ActiveForm::begin(['id' => 't_form', 'options' => ['class' => 'form-horizontal bg-default'], 'enableAjaxValidation' => true, 'action' => ['/form/set-electricity-tariff']]);
 
-
     echo $form->field($model, 'entities')->widget(MultipleInput::class, [
         'id' => 'w_target',
         'allowEmptyList' => false,

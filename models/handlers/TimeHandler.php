@@ -15,6 +15,7 @@ use Throwable;
 class TimeHandler
 {
     public static array $months = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'];
+    public static array $literallyMonths = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 
 
     /**
@@ -288,4 +289,40 @@ class TimeHandler
         }
         throw new MyException("$month не месяц");
     }
+
+    /**
+     * @throws MyException
+     */
+    public static function inflateMonth(string $shortMonth): string
+    {
+        $parsedMonth = self::parseMonth($shortMonth);
+        return self::$literallyMonths[$parsedMonth->intMonth - 1] . " $parsedMonth->year года";
+    }
+
+    /**
+     * @throws MyException
+     */
+    public static function getNextMonth(string $month): string
+    {
+        return self::parseMonth($month)->getNext();
+    }
+
+    /**
+     * @throws MyException
+     */
+    public static function getPreviousMonth(string $month): string
+    {
+        return self::parseMonth($month)->getPrevious();
+    }
+
+    /**
+     * @throws MyException
+     */
+    public static function getMonthTimestamp($month): int
+    {
+        // получу отметку времени 2 числа первого месяца данного года - второго, чтобы исключить поправку на часовой пояс
+        $parsed = self::parseMonth($month);
+        return strtotime("2-$parsed->month-$parsed->year");
+    }
+
 }

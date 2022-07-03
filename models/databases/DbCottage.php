@@ -21,7 +21,6 @@ use yii\db\ActiveRecord;
  * @property bool $has_opened_bill [tinyint(1)]
  * @property bool $has_contact_mail [tinyint(1)]
  * @property int $square [int(11)]
- * @property int $current_electricity_meter_value [int(11)]
  * @property int $deposit [int(11)]
  * @property bool $is_pay_for_electricity [tinyint(1)]
  * @property bool $is_pay_for_membership [tinyint(1)]
@@ -36,6 +35,11 @@ class DbCottage extends ActiveRecord
     public static function tableName(): string
     {
         return 'cottage';
+    }
+
+    public static function getByAlias(string $alias): ?DbCottage
+    {
+        return self::findOne(['alias' => $alias]);
     }
 
 }

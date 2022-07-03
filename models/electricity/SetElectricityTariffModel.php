@@ -117,8 +117,8 @@ class SetElectricityTariffModel extends Model
             $newTariff = new DbTariffElectricity();
             $newTariff->period = $periodForFilling['period'];
             $newTariff->preferential_limit = $periodForFilling['preferential_limit'];
-            $newTariff->preferential_price = CashHandler::centsValueToRublesValue($periodForFilling['preferential_price']);
-            $newTariff->routine_price = CashHandler::centsValueToRublesValue($periodForFilling['routine_price']);
+            $newTariff->preferential_price = CashHandler::floatSumToIntSum($periodForFilling['preferential_price']);
+            $newTariff->routine_price = CashHandler::floatSumToIntSum($periodForFilling['routine_price']);
             $newTariff->period_timestamp = TimeHandler::dateToTimestamp($periodForFilling['date']);
             $newTariff->save();
         }

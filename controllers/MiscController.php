@@ -8,12 +8,11 @@
 
 namespace app\controllers;
 
-use app\models\bank\BankPreferencesEditor;
 use app\models\db\DbBackupModel;
 use app\models\db\DbRestoreModel;
-use app\models\email\MailPreferencesEditor;
-use app\models\selections\AjaxRequestStatus;
+use app\models\handlers\TelegramHandler;
 use DateTime;
+use Exception;
 use JetBrains\PhpStorm\ArrayShape;
 use Yii;
 use yii\filters\AccessControl;
@@ -52,10 +51,13 @@ class MiscController extends Controller
 
     /**
      * @throws NotFoundHttpException
+     * @throws Exception
      */
     public function actionRestoreDb(): Response
     {
         if (Yii::$app->request->isPost) {
+            // сначала сделаю резервную копию БД
+            TelegramHandler::sendDatabaseReserveCopy();
             $restoreModel = new DbRestoreModel();
             $restoreModel->file = UploadedFile::getInstance($restoreModel, 'file');
             $restoreModel->restore();

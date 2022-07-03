@@ -1,3 +1,5 @@
+// noinspection JSValidateTypes,JSUnresolvedFunction
+
 function dangerReload() {
     $(window).on('beforeunload.message', function () {
         return "Необходимо заполнить все поля на странице!";
@@ -88,7 +90,7 @@ function makeModal(header, text, delayed) {
         modal.off('hidden.bs.modal');
         if (modal.length === 1) {
             modal.modal('hide');
-            let newModal = $('<div id="myModal" class="modal fade mode-choose"><div class="modal-dialog  modal-lg"><div class="modal-content"><div class="modal-header">' + header + '</div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-danger"  data-dismiss="modal" type="button" id="cancelActionButton">Отмена</button></div></div></div>');
+            let newModal = $('<div id="myModal" class="modal fade mode-choose"><div class="modal-dialog modal-fullscreen"><div class="modal-content"><div class="modal-header">' + header + '</div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-danger"  data-dismiss="modal" type="button" id="cancelActionButton">Отмена</button></div></div></div>');
             modal.on('hidden.bs.modal', function () {
                 modal.remove();
                 if (!text)
@@ -111,12 +113,13 @@ function makeModal(header, text, delayed) {
                 });
                 $('div.wrap div.container, div.wrap nav').addClass('blured');
             });
+            handleAjaxFormTriggers();
             return newModal;
         }
     }
     if (!text)
         text = '';
-    let modal = $('<div id="myModal" class="modal fade mode-choose"><div class="modal-dialog  modal-lg"><div class="modal-content"><div class="modal-header">' + header + '</div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-danger"  data-dismiss="modal" type="button" id="cancelActionButton">Отмена</button></div></div></div>');
+    let modal = $('<div id="myModal" class="modal fade mode-choose"><div class="modal-dialog modal-fullscreen"><div class="modal-content"><div class="modal-header">' + header + '</div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-danger"  data-dismiss="modal" type="button" id="cancelActionButton">Отмена</button></div></div></div>');
     $('body').append(modal);
     dangerReload();
     modal.modal({
@@ -132,6 +135,7 @@ function makeModal(header, text, delayed) {
     modal.find('form').on('submit', function () {
         normalReload();
     })
+    handleAjaxFormTriggers();
     return modal;
 }
 
@@ -178,7 +182,7 @@ function serialize(obj) {
 function sendAjax(method, url, callback, attributes, isForm) {
     showWaiter();
     ajaxDangerReload();
-    // проверю, не является ли ссылка на арртибуты ссылкой на форму
+    // проверю, не является ли ссылка на аттрибуты ссылкой на форму
     if (attributes && attributes instanceof jQuery && attributes.is('form')) {
         attributes = attributes.serialize();
     } else if (isForm) {
@@ -242,8 +246,28 @@ function simpleActionHandler(answer) {
     }
 }
 
-function handleAjaxFormTriggres() {
+function modalActionHandler(answer) {
+    if (answer['status'] === 1) {
+        if (answer.reload) {
+            makeInformerModal('Успех', answer.message)
+        } else {
+            makeInformerModal('Успех', answer.message, function () {
+            })
+        }
+    } else if (answer['status'] === 0) {
+        if (answer['message']) {
+            makeInformer("warning", "Неудача", answer['message'])
+        } else {
+            makeInformer("warning", "Неудача", "Произошла ошибка при выполнении операции. Попробуйте ещё раз.")
+        }
+    } else {
+        makeInformer("danger", "Ошибка", "Невозможно выполнить операцию. Ошибка на стороне сервера.")
+    }
+}
+
+function handleAjaxFormTriggers() {
     let triggers = $('.ajax-form-trigger');
+    triggers.off('click.request-form');
     triggers.on('click.request-form', function (event) {
         event.preventDefault();
         event.stopPropagation()
@@ -275,4 +299,64 @@ function enableTabNavigation() {
         }
         history.replaceState(null, null, newUrl);
     });
+}
+
+function makeInformerModal(header, text, acceptAction, declineAction) {
+    if (!text)
+        text = '';
+    let modal = $('<div class="modal fade mode-choose"><div class="modal-dialog text-center"><div class="modal-content"><div class="modal-header"><h3>' + header + '</h3></div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-success" type="button" id="acceptActionBtn">Ок</button></div></div></div>');
+    $('body').append(modal);
+
+    let acceptButton = modal.find('button#acceptActionBtn');
+    if (declineAction) {
+        let declineBtn = $('<button class="btn btn-warning" role="button">Отмена</button>');
+        declineBtn.insertAfter(acceptButton);
+        declineBtn.on('click.custom', function () {
+            normalReload();
+            modal.modal('hide');
+            declineAction();
+        });
+    }
+    dangerReload();
+    modal.modal({
+        keyboard: false,
+        backdrop: 'static',
+        show: true
+    });
+    modal.on('hidden.bs.modal', function () {
+        normalReload();
+        modal.remove();
+        $('div.wrap div.container, div.wrap nav').removeClass('blured');
+    });
+    modal.on('shown.bs.modal', function () {
+        acceptButton.focus();
+    });
+    $('div.wrap div.container, div.wrap nav').addClass('blured');
+
+    acceptButton.on('click', function () {
+        normalReload();
+        modal.modal('hide');
+        if (acceptAction) {
+            acceptAction();
+        } else {
+            location.reload();
+        }
+    });
+
+    return modal;
+}
+
+function handlePromiseTriggers() {
+    let triggers = $('.ajax-promise-trigger');
+    triggers.on('click.showPromise', function () {
+        let trigger = $(this);
+        makeInformerModal("Подтвердите действие", $(this).attr('data-promise'), function () {
+            sendAjax('post', trigger.attr('data-action'), modalActionHandler)
+        }, function () {
+        })
+    });
+}
+
+function handleTooltips(){
+    $('.tooltip-enabled').tooltip({'trigger': 'hover'});
 }

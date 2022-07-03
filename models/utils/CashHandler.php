@@ -26,9 +26,9 @@ class CashHandler
     }
 
     /**
-     * @throws \app\models\exceptions\MyException
+     * @throws MyException
      */
-    public static function centsValueToRublesValue(string $cottage_price, $canBeNegative = false): int
+    public static function floatSumToIntSum(string $cottage_price, $canBeNegative = false): int
     {
         try {
             if (self::isFloatCash($cottage_price, $canBeNegative)) {
@@ -39,8 +39,12 @@ class CashHandler
         throw new MyException("$cottage_price не является допустимым числом");
     }
 
-    public static function centsValueToSmoothRublesValue(int $cottage_price): string
+    public static function intSumToSmoothFloat(int $cottage_price): string
     {
         return (int)($cottage_price / 100) . " р. " . $cottage_price % 100 . " коп.";
+    }
+    public static function intSumToFloat(int $cottage_price): string
+    {
+        return (int)($cottage_price / 100) . "." . $cottage_price % 100;
     }
 }

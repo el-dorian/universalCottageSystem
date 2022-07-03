@@ -28,7 +28,7 @@ $this->title = 'Данные по тарифам';
 <div class="tab-content" id="tabContent">
     <div class="tab-pane fade show active" id="electricity_details" role="tabpanel" aria-labelledby="pills-home-tab">
         <div class="col-sm-12 with-margin text-center">
-            <button class="btn btn-success ajax-form-trigger" data-action="/form/set-electricity-tariff">Заполнить тарифы по
+            <button class="btn btn-success ajax-form-trigger" data-action="/form/set-electricity-tariff"><i class="glyphicon glyphicon-plus"></i>Заполнить тарифы по
                 электроэнергии
             </button>
         </div>

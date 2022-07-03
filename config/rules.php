@@ -6,4 +6,5 @@ return [
 	'login' => 'auth/login',
 	'logout' => 'auth/logout',
 	'form/add-cottage/<requestedId:[0-9]+>' => 'form/add-cottage',
+	'cottage/show/<alias:.+>' => 'cottage/show',
 ];

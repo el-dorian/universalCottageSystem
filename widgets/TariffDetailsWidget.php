@@ -37,13 +37,13 @@ class TariffDetailsWidget extends Widget
             }
             foreach ($this->items as $tariff) {
                 if($tariff instanceof DbTariffElectricity){
-                    $this->content .= "<tr><td>$tariff->period</td><td>$tariff->preferential_limit кВт</td><td>" . CashHandler::centsValueToSmoothRublesValue($tariff->preferential_price) . "</td><td>" . CashHandler::centsValueToSmoothRublesValue($tariff->routine_price) . "</td><td>" . TimeHandler::timestampToDate($tariff->period_timestamp) . "</td><td><button class='btn btn-info ajax-info-triggre' data-action='/tariff-details/electricity/$tariff->id'>Детали</button></td></tr>";
+                    $this->content .= "<tr><td>$tariff->period</td><td>$tariff->preferential_limit кВт</td><td>" . CashHandler::intSumToSmoothFloat($tariff->preferential_price) . "</td><td>" . CashHandler::intSumToSmoothFloat($tariff->routine_price) . "</td><td>" . TimeHandler::timestampToDate($tariff->period_timestamp) . "</td><td><button class='btn btn-info ajax-info-triggre' data-action='/tariff-details/electricity/$tariff->id'>Детали</button></td></tr>";
                 }
                 if($tariff instanceof DbTariffMembership){
-                    $this->content .= "<tr><td>$tariff->period</td><td>" . CashHandler::centsValueToSmoothRublesValue($tariff->cottage_price) . "</td><td>" . CashHandler::centsValueToSmoothRublesValue($tariff->footage_price) . "</td><td>" . TimeHandler::timestampToDate($tariff->period_timestamp) . "</td><td><button class='btn btn-info ajax-info-triggre' data-action='/tariff-details/membership/$tariff->id'>Детали</button></td></tr>";
+                    $this->content .= "<tr><td>$tariff->period</td><td>" . CashHandler::intSumToSmoothFloat($tariff->cottage_price) . "</td><td>" . CashHandler::intSumToSmoothFloat($tariff->footage_price) . "</td><td>" . TimeHandler::timestampToDate($tariff->period_timestamp) . "</td><td><button class='btn btn-info ajax-info-triggre' data-action='/tariff-details/membership/$tariff->id'>Детали</button></td></tr>";
                 }
                 if($tariff instanceof DbTariffTarget){
-                    $this->content .= "<tr><td>$tariff->period</td><td>$tariff->description</td><td>" . CashHandler::centsValueToSmoothRublesValue($tariff->cottage_price) . "</td><td>" . CashHandler::centsValueToSmoothRublesValue($tariff->footage_price) . "</td><td>" . TimeHandler::timestampToDate($tariff->period_timestamp) . "</td><td><button class='btn btn-info ajax-info-triggre' data-action='/tariff-details/target/$tariff->id'>Детали</button></td></tr>";
+                    $this->content .= "<tr><td>$tariff->period</td><td>$tariff->description</td><td>" . CashHandler::intSumToSmoothFloat($tariff->cottage_price) . "</td><td>" . CashHandler::intSumToSmoothFloat($tariff->footage_price) . "</td><td>" . TimeHandler::timestampToDate($tariff->period_timestamp) . "</td><td><button class='btn btn-info ajax-info-triggre' data-action='/tariff-details/target/$tariff->id'>Детали</button></td></tr>";
                 }
             }
             $this->content .= '</tbody></table>';

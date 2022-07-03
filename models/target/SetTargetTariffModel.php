@@ -129,8 +129,8 @@ class SetTargetTariffModel extends Model
             $newTariff = new DbTariffTarget();
             $newTariff->period = $periodForFilling['period'];
             $newTariff->description = htmlspecialchars($periodForFilling['description']);
-            $newTariff->cottage_price = CashHandler::centsValueToRublesValue($periodForFilling['cottage_price']);
-            $newTariff->footage_price = CashHandler::centsValueToRublesValue($periodForFilling['footage_price']);
+            $newTariff->cottage_price = CashHandler::floatSumToIntSum($periodForFilling['cottage_price']);
+            $newTariff->footage_price = CashHandler::floatSumToIntSum($periodForFilling['footage_price']);
             $newTariff->period_timestamp = TimeHandler::dateToTimestamp($periodForFilling['date']);
             $newTariff->save();
         }

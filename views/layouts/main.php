@@ -18,6 +18,7 @@ AppAsset::register($this);
 <head>
     <meta charset="<?= Yii::$app->charset ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
@@ -106,12 +107,6 @@ AppAsset::register($this);
     </div>
     <div id="notifications_div" class="no-print"></div>
 </main>
-
-<footer class="footer mt-auto py-3 text-muted">
-    <div class="container">
-        <p class="float-left">&copy; <?=Yii::$app->name?> <?= date('Y') ?></p>
-    </div>
-</footer>
 
 <?php $this->endBody() ?>
 </body>

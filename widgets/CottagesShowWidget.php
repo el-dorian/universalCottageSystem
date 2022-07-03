@@ -2,6 +2,7 @@
 
 namespace app\widgets;
 
+use app\models\databases\DbCottage;
 use app\models\management\BasePreferences;
 use yii\base\Widget;
 use yii\helpers\Html;
@@ -22,6 +23,31 @@ class CottagesShowWidget extends Widget
 
         if($max > $index){
             if(!empty($this->cottages)){
+
+                $template = array_fill(0, BasePreferences::getInstance()->cottagesQuantity, []);
+                foreach ($this->cottages as $cottage) {
+                    $template[$cottage->alias] = $cottage;
+                }
+
+                foreach ($template as $key => $item) {
+                    if($item instanceof DbCottage){
+                        if($item->has_expired_debt){
+                            $cottageColor = 'btn-danger';
+                        }
+                        else if($item->total_debt > 0){
+                            $cottageColor = 'btn-warning';
+                        }
+                        else{
+                            $cottageColor = 'btn-success';
+                        }
+                        $this->content .= "<div class='col-md-1 col-sm-2 col-xs-3 text-center with-margin inlined'><a target='_blank' href='/cottage/show/$item->alias' class='btn cottage-button $cottageColor'>$key</a></div>";
+                    }
+                    else{
+                        $this->content .= "<div class='col-md-1 col-sm-2 col-xs-3 text-center with-margin inlined'><button class='btn empty cottage-button' data-index='$key' data-toggle='tooltip' data-placement='top' title='Регистрация участка № $key'>$key</button></div>";
+
+                    }
+                }
+
 /*                foreach ($this->cottages as $cottage) {
                     if ($cottage->cottageNumber === 0) {
                         continue;

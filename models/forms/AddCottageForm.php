@@ -3,13 +3,22 @@
 namespace app\models\forms;
 
 use app\models\databases\DbCottage;
+use app\models\databases\DbDepositTransfer;
+use app\models\databases\DbElectricityMeter;
 use app\models\databases\DbTariffElectricity;
 use app\models\databases\DbTariffMembership;
 use app\models\databases\DbTariffTarget;
+use app\models\electricity\ElectricityAccrualsHandler;
+use app\models\exceptions\DbSettingsException;
 use app\models\exceptions\MyException;
+use app\models\handlers\TelegramHandler;
 use app\models\handlers\TimeHandler;
 use app\models\management\BasePreferences;
+use app\models\membership\MembershipAccrualsHandler;
+use app\models\target\TargetAccrualsHandler;
+use app\models\utils\CashHandler;
 use app\models\utils\DbTransaction;
+use app\validators\ElectricityMonthValidator;
 use yii\base\Model;
 use yii\helpers\Html;
 
@@ -73,6 +82,7 @@ class AddCottageForm extends Model
                       return $('#" . Html::getInputId($this, 'isPayElectricity') . "').prop('checked');
                   }"
             ],
+            [['cottageAlias'], 'required'],
             [['currentElectricityMeterValue'], 'number', 'min' => 0],
             [['initialDeposit'], 'number', 'min' => 0],
             [['registrationData'], 'string', 'skipOnEmpty' => true],
@@ -85,7 +95,7 @@ class AddCottageForm extends Model
                       return $('#" . Html::getInputId($this, 'isPayElectricity') . "').prop('checked');
                   }"
             ],
-            ['electricityPayedFor', 'validateElectricityMonth',
+            ['electricityPayedFor', ElectricityMonthValidator::class,
                 'when' => function ($model) {
                     return $model->isPayElectricity;
                 },
@@ -186,39 +196,12 @@ class AddCottageForm extends Model
         }
     }
 
-    public function validateElectricityMonth($attribute): void
-    {
-        if (!TimeHandler::isMonth($this->$attribute)) {
-            $this->addError($attribute, 'Введите месяц в формате xxxx-xx');
-            return;
-        }
-        try {
-            $monthsForFill = TimeHandler::getMonths($this->$attribute);
-        } catch (MyException) {
-            $this->addError($attribute, 'Введите месяц в формате xxxx-xx');
-            return;
-        }
-        if (!empty($monthsForFill)) {
-            $unfilledMonths = '';
-            foreach ($monthsForFill as $item) {
-                if (DbTariffElectricity::find()->where(['period' => $item->full])->count() < 1) {
-                    $unfilledMonths .= "$item->full, ";
-                }
-            }
-        }
-        if (!empty($unfilledMonths)) {
-            $this->addError($attribute, "Не заполнены тарифы! $unfilledMonths заполните их в окне тарифов.");
-        }
-    }
-
     public function validateMembershipPayedFor($attribute): void
     {
-        if(BasePreferences::getInstance()->membershipPaymentType === BasePreferences::STATE_PAY_QUARTERLY){
-            try {
-                if ($this->$attribute === TimeHandler::getCurrentQuarter()->full) {
-                    return;
-                }
-            } catch (MyException) {}
+        if (BasePreferences::getInstance()->membershipPaymentType === BasePreferences::STATE_PAY_QUARTERLY) {
+            if ($this->$attribute === TimeHandler::getCurrentQuarter()->full) {
+                return;
+            }
             if (!TimeHandler::isQuarter($this->$attribute)) {
                 $this->addError($attribute, 'Введите квартал в формате xxxx-x');
                 return;
@@ -229,8 +212,7 @@ class AddCottageForm extends Model
                 $this->addError($attribute, 'Введите квартал в формате xxxx-xx');
                 return;
             }
-        }
-        else{
+        } else {
             if ($this->$attribute === TimeHandler::getCurrentYear()) {
                 return;
             }
@@ -243,8 +225,12 @@ class AddCottageForm extends Model
         if (!empty($periodsForFill)) {
             $unfilledPeriods = '';
             foreach ($periodsForFill as $item) {
-                if(BasePreferences::getInstance()->membershipPaymentType === BasePreferences::STATE_PAY_QUARTERLY && $item === TimeHandler::getCurrentQuarter()->full){continue;}
-                if(BasePreferences::getInstance()->membershipPaymentType === BasePreferences::STATE_PAY_YEARLY && $item === TimeHandler::getCurrentYear()){continue;}
+                if (BasePreferences::getInstance()->membershipPaymentType === BasePreferences::STATE_PAY_QUARTERLY && $item === TimeHandler::getCurrentQuarter()->full) {
+                    continue;
+                }
+                if (BasePreferences::getInstance()->membershipPaymentType === BasePreferences::STATE_PAY_YEARLY && $item === TimeHandler::getCurrentYear()) {
+                    continue;
+                }
                 if (DbTariffMembership::find()->where(['period' => $item])->count() < 1) {
                     $unfilledPeriods .= "$item, ";
                 }
@@ -254,9 +240,10 @@ class AddCottageForm extends Model
             $this->addError($attribute, "Не заполнены тарифы! $unfilledPeriods заполните их в окне тарифов.");
         }
     }
+
     public function validateTargetPayedFor($attribute): void
     {
-        if(BasePreferences::getInstance()->targetPaymentType === BasePreferences::STATE_PAY_QUARTERLY){
+        if (BasePreferences::getInstance()->targetPaymentType === BasePreferences::STATE_PAY_QUARTERLY) {
             if (!TimeHandler::isQuarter($this->$attribute)) {
                 $this->addError($attribute, 'Введите квартал в формате xxxx-x');
                 return;
@@ -267,8 +254,7 @@ class AddCottageForm extends Model
                 $this->addError($attribute, 'Введите квартал в формате xxxx-xx');
                 return;
             }
-        }
-        else{
+        } else {
             if (!TimeHandler::isYear($this->$attribute)) {
                 $this->addError($attribute, 'Введите квартал в формате xxxx-x');
                 return;
@@ -290,20 +276,67 @@ class AddCottageForm extends Model
 
     public function validateMasterCottageName($attribute): void
     {
-        if ($this->isSlave) {
-            if (DbCottage::find()->where(['alias' => $this->$attribute])->count() < 1) {
-                $this->addError($attribute, 'Участок с таким именем не зарегистрирован!');
-            }
+        if ($this->isSlave && DbCottage::find()->where(['alias' => $this->$attribute])->count() < 1) {
+            $this->addError($attribute, 'Участок с таким именем не зарегистрирован!');
         }
     }
 
-    public function save()
+    /**
+     * @throws MyException
+     */
+    public function save(): void
     {
         // поехали сохранять
         $dbTransaction = new DbTransaction();
         $newCottage = new DbCottage();
+        $newCottage->square = $this->cottageSquare;
         $newCottage->alias = $this->cottageAlias;
-
+        $newCottage->comment = $this->cottageComment;
+        $newCottage->registration_information = $this->registrationData;
+        $newCottage->is_pay_for_electricity = $this->isPayElectricity;
+        $newCottage->is_pay_for_membership = $this->isPayMembership;
+        $newCottage->is_pay_for_target = $this->isPayTarget;
+        $newCottage->deposit = 0;
+        $newCottage->save();
+        // _mark handle deposit
+        if ($this->initialDeposit > 0) {
+            $depositTransfer = new DbDepositTransfer();
+            $depositTransfer->cottage = $newCottage->id;
+            $depositTransfer->direction = DbDepositTransfer::INCOMING;
+            $depositTransfer->description = 'Депозит, зачисленный при регистрации участка';
+            $depositTransfer->sum = CashHandler::floatSumToIntSum($this->initialDeposit);
+            $depositTransfer->cottage_deposit_before = 0;
+            $depositTransfer->cottage_deposit_after = $depositTransfer->sum;
+            $depositTransfer->action_timestamp = time();
+            $depositTransfer->save();
+        }
+        // _mark append membership accruals
+        if ($newCottage->is_pay_for_membership) {
+            $newCottage->debt_membership = MembershipAccrualsHandler::registerNewCottage($newCottage, $this->membershipPayedFor);
+        }
+        // _mark append target accruals
+        if ($newCottage->is_pay_for_target) {
+            $newCottage->debt_target = TargetAccrualsHandler::registerNewCottage($newCottage, $this->targetPayedFor);
+        }
+        if ($newCottage->is_pay_for_electricity) {
+            // add new counter
+            $newMeter = new DbElectricityMeter();
+            $newMeter->cottage = $newCottage->id;
+            $newMeter->indication = $this->currentElectricityMeterValue;
+            $newMeter->save();
+            // зарегистрирую месяц, в котором была произведена последняя оплата как последний зарегистрированный
+            $newCottage->debt_electricity = 0;
+            ElectricityAccrualsHandler::registerNewCounter($newMeter, $this->electricityPayedFor);
+        }
+        $newCottage->debt_single = 0;
+        $newCottage->total_debt = $newCottage->debt_membership + $newCottage->debt_target;
+        $newCottage->save();
+        try {
+            $dbTransaction->commitTransaction();
+        } catch (DbSettingsException $e) {
+            throw new MyException($e->getMessage());
+        }
+        TelegramHandler::sendDebug("Добавлен новый участок: $newCottage->alias");
     }
 }
 
