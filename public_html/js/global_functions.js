@@ -84,13 +84,15 @@ function makeInformer(type, header, body) {
 
 // Функция вызова пустого модального окна
 function makeModal(header, text, delayed) {
+    text = text.replaceAll("glyphicon", "fa");
+    text = text.replaceAll("fa-duplicate", "fa-clone");
     if (delayed) {
         // открытие модали поверх другой модали
         let modal = $("div.modal");
         modal.off('hidden.bs.modal');
         if (modal.length === 1) {
             modal.modal('hide');
-            let newModal = $('<div id="myModal" class="modal fade mode-choose"><div class="modal-dialog modal-fullscreen"><div class="modal-content"><div class="modal-header">' + header + '</div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-danger"  data-dismiss="modal" type="button" id="cancelActionButton">Отмена</button></div></div></div>');
+            let newModal = $('<div id="myModal" class="modal fade"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header">' + header + '</div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-danger"  data-dismiss="modal" type="button" id="cancelActionButton">Отмена</button></div></div></div>');
             modal.on('hidden.bs.modal', function () {
                 modal.remove();
                 if (!text)
@@ -119,7 +121,7 @@ function makeModal(header, text, delayed) {
     }
     if (!text)
         text = '';
-    let modal = $('<div id="myModal" class="modal fade mode-choose"><div class="modal-dialog modal-fullscreen"><div class="modal-content"><div class="modal-header">' + header + '</div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-danger"  data-dismiss="modal" type="button" id="cancelActionButton">Отмена</button></div></div></div>');
+    let modal = $('<div id="myModal" class="modal fade"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header">' + header + '</div><div class="modal-body">' + text + '</div><div class="modal-footer"><button class="btn btn-danger"  data-dismiss="modal" type="button" id="cancelActionButton">Отмена</button></div></div></div>');
     $('body').append(modal);
     dangerReload();
     modal.modal({

@@ -47,4 +47,9 @@ class DbAccrualElectricity extends ActiveRecord implements TariffInterface
     {
         return self::find()->where(['period' => $newAccruals->period, 'cottage'=> $newAccruals->cottage, 'meter' => $newAccruals->meter])->count() > 0;
     }
+
+    public function getLeftToPay(): int
+    {
+        return $this->total_amount - $this->payed_sum;
+    }
 }

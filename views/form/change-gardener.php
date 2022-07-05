@@ -123,20 +123,4 @@ echo Html::submitButton("Сохранить", ['class' => 'btn btn-primary with-
 
 ActiveForm::end();
 
-// stupid hack, search for resolve, but i need glyphicons
-echo '<div class="hidden">';
-try {
-    echo DatePicker::widget([
-        'model' => $model,
-        'attribute' => 'test',
-        'template' => '{addon}{input}',
-        'clientOptions' => [
-            'autoclose' => true,
-            'format' => 'dd-M-yyyy'
-        ]
-    ]);
-} catch (Exception $e) {
-}
-
-echo '</div>';
 echo '</div>';

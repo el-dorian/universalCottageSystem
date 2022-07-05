@@ -35,7 +35,8 @@ class SiteController extends Controller
                     [
                         'allow' => true,
                         'actions' => [
-                            'index'
+                            'index',
+                            'test'
                         ],
                         'roles' => ['reader'],
 
@@ -71,5 +72,9 @@ class SiteController extends Controller
             return $this->redirect('/login', 301);
         }
         return $this->render('access-error');
+    }
+
+    public function actionTest(){
+        return $this->render('test');
     }
 }

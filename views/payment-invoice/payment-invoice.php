@@ -11,81 +11,6 @@ use yii\widgets\ActiveForm;
 /* @var $this View */
 /* @var $model PaymentInvoiceBuilder */
 
-/*echo '<div class="col-sm-12">';
-
-$form = ActiveForm::begin(['id' => 'paymentInvoiceForm', 'options' => ['class' => 'form-horizontal bg-default'], 'enableAjaxValidation' => true, 'action' => ["/payment-invoice/create?id=$model->cottage"]]);
-
-try {
-    echo $form->field($model, 'electricity')->widget(MultipleInput::class, [
-        'id' => 'w_target',
-        'allowEmptyList' => false,
-        'cloneButton' => false,
-        'addButtonPosition' => MultipleInput::POS_HEADER, // show add button in the header
-        'enableError' => true,
-        'attributeOptions' => [
-            'enableAjaxValidation' => true,
-            'enableClientValidation' => false,
-            'validateOnChange' => true,
-            'validateOnSubmit' => true,
-            'validateOnBlur' => false,
-        ],
-        'columns' => [
-            [
-                'name' => 'payable',
-                'type' => 'checkbox',
-                'title' => 'Оплачивается',
-                'enableError' => true
-            ],
-            [
-                'name' => 'period',
-                'type' => 'textInput',
-                'title' => 'Месяц',
-                'enableError' => true
-            ],
-            [
-                'name' => 'preferential_limit',
-                'type' => 'textInput',
-                'title' => 'Лимит льготного потребления, кВт',
-                'options' => ['type' => 'number', 'min' => 0, 'step' => '1', 'value' => 0],
-                'enableError' => true
-            ],
-            [
-                'name' => 'preferential_price',
-                'type' => 'textInput',
-                'title' => 'Льготная стоимость киловатта, руб.',
-                'options' => ['type' => 'number', 'min' => 0, 'step' => '0.01', 'value' => 0],
-                'enableError' => true
-            ],
-            [
-                'name' => 'routine_price',
-                'type' => 'textInput',
-                'title' => 'Стоимость киловатта сверх льготного лимита, руб.',
-                'options' => ['type' => 'number', 'min' => 0, 'step' => '0.01', 'value' => 0],
-                'enableError' => true
-            ],
-            [
-                'name' => 'date',
-                'type' => DatePicker::class,
-                'title' => 'Дата выставления',
-                'attributeOptions' => [
-                    'autoclose' => true,
-                    'format' => 'dd-M-yyyy'
-                ],
-                'enableError' => true
-            ],
-        ]
-
-    ]);
-} catch (Exception $e) {
-    echo $e->getMessage();
-    echo $e->getTraceAsString();
-}
-
-echo Html::submitButton("Сохранить", ['class' => 'btn btn-primary with-margin']);
-
-ActiveForm::end();
-echo '</div>';*/
-
 echo "<div class='container'>";
 
 $form = ActiveForm::begin(['id' => 'paymentInvoiceForm', 'enableAjaxValidation' => true, 'action' => ["/payment-invoice/create?id=$model->cottage"]]);
@@ -97,11 +22,13 @@ echo $form->field($model, 'payer', ['template' =>
 
 try {
     echo $form->field($model, 'electricity')->widget(MultipleInput::class, [
-        'id' => 'w_target',
-        'allowEmptyList' => false,
+        'id' => 'w_electricity',
+        'min' => 0,
+        'allowEmptyList' => true,
         'cloneButton' => false,
         'addButtonPosition' => MultipleInput::POS_HEADER, // show add button in the header
         'enableError' => true,
+        'removeButtonOptions' => ['class' => 'd-none'],
         'attributeOptions' => [
             'enableAjaxValidation' => true,
             'enableClientValidation' => false,
@@ -109,31 +36,44 @@ try {
             'validateOnSubmit' => true,
             'validateOnBlur' => false,
         ],
+        'addButtonOptions' => [
+            'class' => 'd-none'
+        ],
         'columns' => [
             [
-                'name' => 'payable',
+                'name' => 'selected_for_pay',
                 'type' => 'checkbox',
-                'title' => 'Оплатить',
-                'enableError' => true
+                'title' => 'Оплата',
             ],
             [
                 'name' => 'period',
                 'type' => 'textInput',
-                'title' => 'Месяц',
-                'enableError' => true
+                'options' => ['readonly' => true],
+                'title' => 'Период оплаты',
             ],
             [
                 'name' => 'sum',
                 'type' => 'textInput',
                 'title' => 'Сумма',
-                'options' => ['type' => 'number', 'min' => 0, 'step' => '0.01'],
-                'enableError' => true
+                'options' => ['type' => 'number', 'min' => 0, 'step' => '0.01']
+            ],
+            [
+                'name' => 'meterDescription',
+                'type' => 'textInput',
+                'title' => 'Счётчик',
+                'options' => ['readonly' => true],
+            ],
+            [
+                'name' => 'meter',
+                'type' => 'textInput',
+                'options' => ['readonly' => true, 'class' => 'd-none'],
+                'headerOptions' => ['class' => 'd-none'],
+                'title' => '',
             ],
         ]
 
     ]);
 } catch (Exception $e) {
-    echo $e->getMessage();
     echo $e->getTraceAsString();
 }
 
@@ -142,3 +82,19 @@ echo Html::submitButton("Сохранить", ['class' => 'btn btn-primary with-
 ActiveForm::end();
 
 echo "</div>";
+?>
+
+<script>
+    $('#paymentInvoiceForm').on('ajaxComplete', function (e) {
+        // отправлю запрос на пересчёт общей стоимости счёта
+        sendAjax(
+            'post',
+            '/payment-invoice/count-total',
+            function (answer) {
+                console.log(answer)
+            },
+            $(this),
+            true
+        )
+    });
+</script>

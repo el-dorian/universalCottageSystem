@@ -30,4 +30,9 @@ class AjaxRequestStatus
     {
         return ['status' => self::STATUS_SUCCESS, 'message' => $message, 'reload' => true];
     }
+
+    public static function successWithMessage($message)
+    {
+        return ['status' => self::STATUS_SUCCESS, 'message' => $message];
+    }
 }
